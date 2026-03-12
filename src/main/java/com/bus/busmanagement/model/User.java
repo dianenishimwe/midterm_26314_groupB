@@ -40,7 +40,7 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private DriverLicense driverLicense;
+    private Driver driver;
     
     public enum UserRole {
         ADMIN,

@@ -5,7 +5,6 @@ import com.bus.busmanagement.model.Bus;
 import com.bus.busmanagement.model.Route;
 import com.bus.busmanagement.repository.BusRepository;
 import com.bus.busmanagement.repository.RouteRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,12 +15,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class BusService {
     
     private final BusRepository busRepository;
     private final RouteRepository routeRepository;
+    
+    public BusService(BusRepository busRepository, RouteRepository routeRepository) {
+        this.busRepository = busRepository;
+        this.routeRepository = routeRepository;
+    }
     
     public Bus createBus(BusDTO busDTO) {
         Route route = null;
@@ -30,13 +33,12 @@ public class BusService {
                 .orElseThrow(() -> new RuntimeException("Route not found with id: " + busDTO.getRouteId()));
         }
         
-        Bus bus = Bus.builder()
-            .plateNumber(busDTO.getPlateNumber())
-            .model(busDTO.getModel())
-            .capacity(busDTO.getCapacity())
-            .status(Bus.BusStatus.valueOf(busDTO.getStatus()))
-            .route(route)
-            .build();
+        Bus bus = new Bus();
+        bus.setPlateNumber(busDTO.getPlateNumber());
+        bus.setModel(busDTO.getModel());
+        bus.setCapacity(busDTO.getCapacity());
+        bus.setStatus(Bus.BusStatus.valueOf(busDTO.getStatus()));
+        bus.setRoute(route);
         
         return busRepository.save(bus);
     }

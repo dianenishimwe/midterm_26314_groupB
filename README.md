@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-=======
-# midterm_26314_groupB
->>>>>>> 841e1576652314a3180f23428bfa61400ff38fe0
 # Bus Management System
 
-A comprehensive Spring Boot application for managing bus operations, routes, users, and Rwanda's administrative locations.
+A comprehensive Spring Boot application for managing bus operations, routes, drivers, users, and Rwanda's administrative locations.
 
 ## 📋 Table of Contents
 - [Features](#features)
@@ -22,9 +18,9 @@ A comprehensive Spring Boot application for managing bus operations, routes, use
 - **Location Management**: Hierarchical location system (Province → District → Sector → Cell → Village)
 - **Bus Management**: Track buses, their status, capacity, and assigned routes
 - **Route Management**: Manage bus routes with start/end locations and distances
+- **Driver Management**: Manage drivers and bus assignments
 - **User Management**: Handle users with different roles (Admin, Driver, Passenger)
 - **Booking System**: User-route booking with seat assignments
-- **Driver License Management**: Track driver licenses and expiry dates
 - **RESTful APIs**: Complete CRUD operations for all entities
 - **Security**: BCrypt password encryption
 - **Data Persistence**: PostgreSQL database with JPA/Hibernate
@@ -32,11 +28,11 @@ A comprehensive Spring Boot application for managing bus operations, routes, use
 ## 🛠 Technologies
 
 - **Java 17**
-- **Spring Boot 4.0.3**
+- **Spring Boot 3.2.0**
 - **Spring Data JPA**
 - **Spring Security**
-- **PostgreSQL 16**
-- **Hibernate 7.2.4**
+- **PostgreSQL**
+- **Hibernate**
 - **Lombok**
 - **Maven**
 
@@ -142,6 +138,19 @@ The application will start on: **http://localhost:8081**
 | PUT | `/api/locations/{id}` | Update location |
 | DELETE | `/api/locations/{id}` | Delete location |
 
+### Driver APIs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/drivers?userId={id}` | Create new driver |
+| PUT | `/api/drivers/{driverId}/assign-bus/{busId}` | Assign bus to driver |
+| GET | `/api/drivers/{id}` | Get driver by ID |
+| GET | `/api/drivers/license/{licenseNumber}` | Get driver by license number |
+| GET | `/api/drivers/user/{userId}` | Get driver by user ID |
+| GET | `/api/drivers` | Get all drivers |
+| PUT | `/api/drivers/{id}` | Update driver |
+| DELETE | `/api/drivers/{id}` | Delete driver |
+
 ### User APIs
 
 | Method | Endpoint | Description |
@@ -225,13 +234,10 @@ The application will start on: **http://localhost:8081**
    - booking_date (TIMESTAMP)
    - status (ENUM: CONFIRMED, CANCELLED, COMPLETED)
 
-6. **driver_licenses** - Driver license information
+6. **drivers** - Driver information
    - id (BIGINT, PK)
    - user_id (BIGINT, FK → users)
-   - license_number (VARCHAR, UNIQUE)
-   - license_category (VARCHAR)
-   - issue_date (DATE)
-   - expiry_date (DATE)
+   - bus_id (BIGINT, FK → buses)
 
 ## 🧪 Testing with Postman
 
@@ -288,6 +294,21 @@ Content-Type: application/json
 GET http://localhost:8081/api/routes
 ```
 
+### 6. Create a Driver
+```
+POST http://localhost:8081/api/drivers?userId=1
+Content-Type: application/json
+
+{
+    "name": "Driver Name"
+}
+```
+
+### 7. Assign Bus to Driver
+```
+PUT http://localhost:8081/api/drivers/1/assign-bus/1
+```
+
 ## 📊 Pre-loaded Data
 
 The application automatically loads sample data on startup:
@@ -331,7 +352,6 @@ pg_ctl start
 Clean and rebuild:
 ```bash
 mvn clean install -U
-<<<<<<< HEAD
 ```
 
 ## 📝 License
@@ -340,15 +360,12 @@ This project is for educational purposes.
 
 ## 👥 Contributors
 
-- Your Name
+- Group B - Midterm Project 26314
 
 ## 📧 Contact
 
-For questions or support, contact: your.email@example.com
+For questions or support, contact the project team.
 
 ---
 
 **Built with ❤️ using Spring Boot**
-=======
-
->>>>>>> 841e1576652314a3180f23428bfa61400ff38fe0
