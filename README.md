@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# midterm_26314_groupB
+>>>>>>> 841e1576652314a3180f23428bfa61400ff38fe0
 # Bus Management System
 
 A comprehensive Spring Boot application for managing bus operations, routes, users, and Rwanda's administrative locations.
@@ -327,6 +331,7 @@ pg_ctl start
 Clean and rebuild:
 ```bash
 mvn clean install -U
+<<<<<<< HEAD
 ```
 
 ## 📝 License
@@ -344,3 +349,6 @@ For questions or support, contact: your.email@example.com
 ---
 
 **Built with ❤️ using Spring Boot**
+=======
+
+>>>>>>> 841e1576652314a3180f23428bfa61400ff38fe0
