@@ -1,19 +1,18 @@
 package com.bus.busmanagement.service;
 
 import java.util.List;
-
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.bus.busmanagement.dto.UserDTO;
 import com.bus.busmanagement.model.User;
 import com.bus.busmanagement.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,7 +31,7 @@ public class UserService {
             .fullName(userDTO.getName())
             .role(User.UserRole.valueOf(userDTO.getRole()))
             .build();
-        return userRepository.save(user);
+        return userRepository.save(Objects.requireNonNull(user));
     }
 
     @Transactional(readOnly = true)
@@ -63,8 +62,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
+    public User getUserById(@NonNull Long id) {
+        return userRepository.findById(Objects.requireNonNull(id))
             .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
@@ -80,8 +79,8 @@ public class UserService {
             .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
     }
 
-    public User updateUser(Long id, UserDTO userDTO) {
-        User user = getUserById(id);
+    public User updateUser(@NonNull Long id, UserDTO userDTO) {
+        User user = getUserById(Objects.requireNonNull(id));
         user.setFullName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
         user.setUsername(userDTO.getUsername());
@@ -91,11 +90,11 @@ public class UserService {
         if (userDTO.getRole() != null && !userDTO.getRole().isEmpty()) {
             user.setRole(User.UserRole.valueOf(userDTO.getRole()));
         }
-        return userRepository.save(user);
+        return userRepository.save(Objects.requireNonNull(user));
     }
 
-    public void deleteUser(Long id) {
-        User user = getUserById(id);
-        userRepository.delete(user);
+    public void deleteUser(@NonNull Long id) {
+        User user = getUserById(Objects.requireNonNull(id));
+        userRepository.delete(Objects.requireNonNull(user));
     }
 }

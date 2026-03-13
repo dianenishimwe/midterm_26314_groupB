@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -40,10 +42,10 @@ public class LocationController {
 
     @PostMapping("/child")
     public ResponseEntity<?> createChildLocation(
-            @RequestParam UUID parentId,
+            @RequestParam @NonNull UUID parentId,
             @RequestBody Location location) {
         try {
-            Location savedLocation = locationService.saveChildLocation(location, parentId);
+            Location savedLocation = locationService.saveChildLocation(location, Objects.requireNonNull(parentId));
             return new ResponseEntity<>(savedLocation, HttpStatus.CREATED);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
@@ -58,7 +60,6 @@ public class LocationController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
-        
         Page<Location> locations = locationService.getAllLocations(page, size, sortBy, direction);
         return new ResponseEntity<>(locations, HttpStatus.OK);
     }
@@ -70,8 +71,8 @@ public class LocationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getLocationById(@PathVariable UUID id) {
-        return locationService.getLocationById(id)
+    public ResponseEntity<?> getLocationById(@PathVariable @NonNull UUID id) {
+        return locationService.getLocationById(Objects.requireNonNull(id))
                 .map(location -> new ResponseEntity<>(location, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -91,9 +92,9 @@ public class LocationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateLocation(@PathVariable UUID id, @RequestBody Location location) {
+    public ResponseEntity<?> updateLocation(@PathVariable @NonNull UUID id, @RequestBody Location location) {
         try {
-            Location updatedLocation = locationService.updateLocation(id, location);
+            Location updatedLocation = locationService.updateLocation(Objects.requireNonNull(id), location);
             return new ResponseEntity<>(updatedLocation, HttpStatus.OK);
         } catch (RuntimeException e) {
             Map<String, String> error = new HashMap<>();
@@ -103,9 +104,9 @@ public class LocationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteLocation(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteLocation(@PathVariable @NonNull UUID id) {
         try {
-            locationService.deleteLocation(id);
+            locationService.deleteLocation(Objects.requireNonNull(id));
             Map<String, String> response = new HashMap<>();
             response.put("message", "Location and all its sub-locations deleted successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -152,25 +153,25 @@ public class LocationController {
     }
 
     @GetMapping("/{parentId}/children")
-    public ResponseEntity<?> getChildLocations(@PathVariable UUID parentId) {
-        return locationService.getChildLocations(parentId)
+    public ResponseEntity<?> getChildLocations(@PathVariable @NonNull UUID parentId) {
+        return locationService.getChildLocations(Objects.requireNonNull(parentId))
                 .map(locations -> new ResponseEntity<>(locations, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/{parentId}/children/paged")
     public ResponseEntity<?> getChildLocationsPaged(
-            @PathVariable UUID parentId,
+            @PathVariable @NonNull UUID parentId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return locationService.getChildLocations(parentId, page, size)
+        return locationService.getChildLocations(Objects.requireNonNull(parentId), page, size)
                 .map(locations -> new ResponseEntity<>(locations, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/{id}/hierarchy-path")
-    public ResponseEntity<?> getLocationHierarchyPath(@PathVariable UUID id) {
-        return locationService.getLocationHierarchyPath(id)
+    public ResponseEntity<?> getLocationHierarchyPath(@PathVariable @NonNull UUID id) {
+        return locationService.getLocationHierarchyPath(Objects.requireNonNull(id))
                 .map(path -> {
                     Map<String, String> response = new HashMap<>();
                     response.put("hierarchyPath", path);
@@ -180,15 +181,15 @@ public class LocationController {
     }
 
     @GetMapping("/{id}/all-children")
-    public ResponseEntity<?> getAllSubLocations(@PathVariable UUID id) {
-        return locationService.getAllSubLocations(id)
+    public ResponseEntity<?> getAllSubLocations(@PathVariable @NonNull UUID id) {
+        return locationService.getAllSubLocations(Objects.requireNonNull(id))
                 .map(locations -> new ResponseEntity<>(locations, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/{id}/villages")
-    public ResponseEntity<List<Location>> getAllVillagesUnderLocation(@PathVariable UUID id) {
-        List<Location> villages = locationService.getAllVillagesUnderLocation(id);
+    public ResponseEntity<List<Location>> getAllVillagesUnderLocation(@PathVariable @NonNull UUID id) {
+        List<Location> villages = locationService.getAllVillagesUnderLocation(Objects.requireNonNull(id));
         return new ResponseEntity<>(villages, HttpStatus.OK);
     }
 

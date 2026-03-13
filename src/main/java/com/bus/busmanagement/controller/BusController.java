@@ -6,11 +6,12 @@ import com.bus.busmanagement.service.BusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Bus Controller - REST API endpoints for bus operations
@@ -20,9 +21,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class BusController {
-    
+
     private final BusService busService;
-    
+
     /**
      * POST /api/buses - Create a new bus
      */
@@ -31,7 +32,7 @@ public class BusController {
         Bus savedBus = busService.createBus(busDTO);
         return ResponseEntity.ok(savedBus);
     }
-    
+
     /**
      * GET /api/buses - Get all buses
      */
@@ -39,20 +40,20 @@ public class BusController {
     public ResponseEntity<List<Bus>> getAllBuses() {
         return ResponseEntity.ok(busService.getAllBuses());
     }
-    
+
     /**
      * GET /api/buses/{id} - Get bus by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Bus> getBusById(@PathVariable Long id) {
+    public ResponseEntity<Bus> getBusById(@PathVariable @NonNull Long id) {
         try {
-            Bus bus = busService.getBusById(id);
+            Bus bus = busService.getBusById(Objects.requireNonNull(id));
             return ResponseEntity.ok(bus);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     /**
      * GET /api/buses/exists/plate/{plateNumber} - Check if bus exists by plate number
      */
@@ -63,7 +64,7 @@ public class BusController {
         response.put("exists", exists);
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * GET /api/buses/status/{status} - Get buses by status
      */
@@ -71,7 +72,7 @@ public class BusController {
     public ResponseEntity<List<Bus>> getBusesByStatus(@PathVariable String status) {
         return ResponseEntity.ok(busService.getBusesByStatus(status));
     }
-    
+
     /**
      * GET /api/buses/route/{routeId} - Get buses by route
      */
@@ -79,7 +80,7 @@ public class BusController {
     public ResponseEntity<List<Bus>> getBusesByRoute(@PathVariable Long routeId) {
         return ResponseEntity.ok(busService.getBusesByRoute(routeId));
     }
-    
+
     /**
      * GET /api/buses/paginated - Get buses with pagination and sorting
      */
@@ -93,22 +94,22 @@ public class BusController {
         Page<Bus> busPage = busService.getAllBusesPaginated(page, size, sortBy, ascending);
         return ResponseEntity.ok(busPage);
     }
-    
+
     /**
      * PUT /api/buses/{id} - Update bus
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Bus> updateBus(@PathVariable Long id, @RequestBody BusDTO busDTO) {
-        Bus updatedBus = busService.updateBus(id, busDTO);
+    public ResponseEntity<Bus> updateBus(@PathVariable @NonNull Long id, @RequestBody BusDTO busDTO) {
+        Bus updatedBus = busService.updateBus(Objects.requireNonNull(id), busDTO);
         return ResponseEntity.ok(updatedBus);
     }
-    
+
     /**
      * DELETE /api/buses/{id} - Delete bus
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBus(@PathVariable Long id) {
-        busService.deleteBus(id);
+    public ResponseEntity<Void> deleteBus(@PathVariable @NonNull Long id) {
+        busService.deleteBus(Objects.requireNonNull(id));
         return ResponseEntity.noContent().build();
     }
 }

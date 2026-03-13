@@ -20,8 +20,10 @@ A comprehensive Spring Boot application for managing bus operations, routes, dri
 - **Route Management**: Manage bus routes with start/end locations and distances
 - **Driver Management**: Manage drivers and bus assignments
 - **User Management**: Handle users with different roles (Admin, Driver, Passenger)
+- **Ticket System**: Complete ticket booking with auto-generated ticket numbers
 - **Booking System**: User-route booking with seat assignments
 - **RESTful APIs**: Complete CRUD operations for all entities
+- **Sorting & Pagination**: Efficient data retrieval with pagination support
 - **Security**: BCrypt password encryption
 - **Data Persistence**: PostgreSQL database with JPA/Hibernate
 
@@ -113,7 +115,7 @@ mvn clean package
 java -jar target/busmanagement-0.0.1-SNAPSHOT.jar
 ```
 
-The application will start on: **http://localhost:8081**
+The application will start on: **http://localhost:8082**
 
 ## 📡 API Endpoints
 
@@ -187,8 +189,34 @@ The application will start on: **http://localhost:8081**
 | POST | `/api/routes` | Create new route |
 | GET | `/api/routes` | Get all routes |
 | GET | `/api/routes/{id}` | Get route by ID |
+| GET | `/api/routes/paginated` | Get routes (paginated & sorted) |
+| GET | `/api/routes/sorted` | Get routes (sorted) |
 | PUT | `/api/routes/{id}` | Update route |
 | DELETE | `/api/routes/{id}` | Delete route |
+
+### Ticket APIs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/tickets` | Create new ticket |
+| GET | `/api/tickets` | Get all tickets |
+| GET | `/api/tickets/{id}` | Get ticket by ID |
+| GET | `/api/tickets/ticket-number/{ticketNumber}` | Get ticket by ticket number |
+| GET | `/api/tickets/user/{userId}` | Get tickets by user |
+| GET | `/api/tickets/route/{routeId}` | Get tickets by route |
+| PUT | `/api/tickets/{id}/status?status={status}` | Update ticket status |
+| DELETE | `/api/tickets/{id}` | Delete ticket |
+
+### User Route APIs
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/user-routes` | Create new booking |
+| GET | `/api/user-routes` | Get all bookings |
+| GET | `/api/user-routes/{id}` | Get booking by ID |
+| GET | `/api/user-routes/user/{userId}` | Get bookings by user |
+| GET | `/api/user-routes/route/{routeId}` | Get bookings by route |
+| DELETE | `/api/user-routes/{id}` | Delete booking |
 
 ## 🗄️ Database Schema
 
@@ -238,17 +266,30 @@ The application will start on: **http://localhost:8081**
    - id (BIGINT, PK)
    - user_id (BIGINT, FK → users)
    - bus_id (BIGINT, FK → buses)
+   - license_number (VARCHAR, UNIQUE)
+
+7. **tickets** - Ticket bookings
+   - id (BIGINT, PK)
+   - user_id (BIGINT, FK → users)
+   - route_id (BIGINT, FK → routes)
+   - bus_id (BIGINT, FK → buses)
+   - ticket_number (VARCHAR, UNIQUE)
+   - seat_number (VARCHAR)
+   - price (DOUBLE)
+   - booking_date (TIMESTAMP)
+   - travel_date (TIMESTAMP)
+   - status (ENUM: BOOKED, CONFIRMED, CANCELLED, COMPLETED)
 
 ## 🧪 Testing with Postman
 
 ### 1. Get All Locations
 ```
-GET http://localhost:8081/api/locations/all
+GET http://localhost:8082/api/locations/all
 ```
 
 ### 2. Get Location Statistics
 ```
-GET http://localhost:8081/api/locations/statistics
+GET http://localhost:8082/api/locations/statistics
 ```
 **Response:**
 ```json
@@ -263,7 +304,7 @@ GET http://localhost:8081/api/locations/statistics
 
 ### 3. Register a User
 ```
-POST http://localhost:8081/api/users/register
+POST http://localhost:8082/api/users/register
 Content-Type: application/json
 
 {
@@ -277,7 +318,7 @@ Content-Type: application/json
 
 ### 4. Create a Bus
 ```
-POST http://localhost:8081/api/buses
+POST http://localhost:8082/api/buses
 Content-Type: application/json
 
 {
@@ -291,12 +332,27 @@ Content-Type: application/json
 
 ### 5. Get All Routes
 ```
-GET http://localhost:8081/api/routes
+GET http://localhost:8082/api/routes
 ```
 
-### 6. Create a Driver
+### 6. Create a Ticket
 ```
-POST http://localhost:8081/api/drivers?userId=1
+POST http://localhost:8082/api/tickets
+Content-Type: application/json
+
+{
+    "userId": 1,
+    "routeId": 1,
+    "busId": 1,
+    "seatNumber": "A1",
+    "price": 5000.0,
+    "travelDate": "2026-03-20T08:00:00"
+}
+```
+
+### 7. Create a Driver
+```
+POST http://localhost:8082/api/drivers?userId=1
 Content-Type: application/json
 
 {
@@ -304,9 +360,19 @@ Content-Type: application/json
 }
 ```
 
-### 7. Assign Bus to Driver
+### 8. Assign Bus to Driver
 ```
-PUT http://localhost:8081/api/drivers/1/assign-bus/1
+PUT http://localhost:8082/api/drivers/1/assign-bus/1
+```
+
+### 9. Get Tickets by User
+```
+GET http://localhost:8082/api/tickets/user/1
+```
+
+### 10. Update Ticket Status
+```
+PUT http://localhost:8082/api/tickets/1/status?status=CONFIRMED
 ```
 
 ## 📊 Pre-loaded Data
@@ -333,9 +399,14 @@ The application automatically loads sample data on startup:
 ## 🐛 Troubleshooting
 
 ### Port Already in Use
-If port 8081 is occupied, change it in `application.properties`:
+If port 8082 is occupied, change it in `application.properties`:
 ```properties
-server.port=8082
+server.port=8083
+```
+
+Or kill the Java process:
+```powershell
+Stop-Process -Name java -Force
 ```
 
 ### Database Connection Error

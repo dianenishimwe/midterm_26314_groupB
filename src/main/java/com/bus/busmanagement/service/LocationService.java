@@ -8,11 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,18 +37,18 @@ public class LocationService {
         return locationRepository.save(location);
     }
 
-    public Location saveChildLocation(Location location, UUID parentId) {
+    public Location saveChildLocation(Location location, @NonNull UUID parentId) {
         if (locationRepository.existsByCode(location.getCode())) {
             throw new RuntimeException("Location with code '" + location.getCode() + "' already exists");
         }
-        
-        Optional<Location> parentOpt = locationRepository.findById(parentId);
+
+        Optional<Location> parentOpt = locationRepository.findById(Objects.requireNonNull(parentId));
         if (parentOpt.isPresent()) {
             location.setParent(parentOpt.get());
         } else {
             throw new RuntimeException("Parent location not found with id: " + parentId);
         }
-        
+
         return locationRepository.save(location);
     }
 
@@ -58,31 +60,31 @@ public class LocationService {
         return locationRepository.save(location);
     }
 
-    public Location updateLocation(UUID id, Location locationDetails) {
-        Location location = locationRepository.findById(id)
+    public Location updateLocation(@NonNull UUID id, Location locationDetails) {
+        Location location = locationRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new RuntimeException("Location not found with id: " + id));
-        
+
         if (!location.getCode().equals(locationDetails.getCode()) &&
             locationRepository.existsByCode(locationDetails.getCode())) {
             throw new RuntimeException("Location code already exists");
         }
-        
+
         location.setCode(locationDetails.getCode());
         location.setName(locationDetails.getName());
         location.setDescription(locationDetails.getDescription());
-        
+
         if (locationDetails.getParent() != null) {
             location.setParent(locationDetails.getParent());
         }
-        
+
         return locationRepository.save(location);
     }
 
-    public Optional<Location> getLocationById(UUID id) {
-        if (!locationRepository.existsById(id)) {
+    public Optional<Location> getLocationById(@NonNull UUID id) {
+        if (!locationRepository.existsById(Objects.requireNonNull(id))) {
             return Optional.empty();
         }
-        return locationRepository.findById(id);
+        return locationRepository.findById(Objects.requireNonNull(id));
     }
 
     public Optional<Location> getLocationByCode(String code) {
@@ -100,10 +102,10 @@ public class LocationService {
     }
 
     public Page<Location> getAllLocations(int page, int size, String sortBy, String direction) {
-        Sort sort = direction.equalsIgnoreCase("desc") 
-            ? Sort.by(sortBy).descending() 
+        Sort sort = direction.equalsIgnoreCase("desc")
+            ? Sort.by(sortBy).descending()
             : Sort.by(sortBy).ascending();
-        
+
         Pageable pageable = PageRequest.of(page, size, sort);
         return locationRepository.findAll(pageable);
     }
@@ -121,13 +123,13 @@ public class LocationService {
         return locationRepository.findByLocationType(type, pageable);
     }
 
-    public Optional<List<Location>> getChildLocations(UUID parentId) {
-        Optional<Location> parentOpt = locationRepository.findById(parentId);
+    public Optional<List<Location>> getChildLocations(@NonNull UUID parentId) {
+        Optional<Location> parentOpt = locationRepository.findById(Objects.requireNonNull(parentId));
         return parentOpt.map(locationRepository::findByParent);
     }
 
-    public Optional<Page<Location>> getChildLocations(UUID parentId, int page, int size) {
-        Optional<Location> parentOpt = locationRepository.findById(parentId);
+    public Optional<Page<Location>> getChildLocations(@NonNull UUID parentId, int page, int size) {
+        Optional<Location> parentOpt = locationRepository.findById(Objects.requireNonNull(parentId));
         Pageable pageable = PageRequest.of(page, size);
         return parentOpt.map(parent -> locationRepository.findByParent(parent, pageable));
     }
@@ -136,8 +138,8 @@ public class LocationService {
         return locationRepository.findByParentIsNull();
     }
 
-    public Optional<String> getLocationHierarchyPath(UUID locationId) {
-        Optional<Location> locationOpt = locationRepository.findById(locationId);
+    public Optional<String> getLocationHierarchyPath(@NonNull UUID locationId) {
+        Optional<Location> locationOpt = locationRepository.findById(Objects.requireNonNull(locationId));
         return locationOpt.map(location -> {
             StringBuilder path = new StringBuilder(location.getName());
             Location current = location.getParent();
@@ -150,8 +152,8 @@ public class LocationService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<List<Location>> getAllSubLocations(UUID locationId) {
-        Optional<Location> locationOpt = locationRepository.findById(locationId);
+    public Optional<List<Location>> getAllSubLocations(@NonNull UUID locationId) {
+        Optional<Location> locationOpt = locationRepository.findById(Objects.requireNonNull(locationId));
         if (locationOpt.isPresent()) {
             List<Location> allSubLocations = new ArrayList<>();
             collectSubLocations(locationOpt.get(), allSubLocations);
@@ -168,8 +170,8 @@ public class LocationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Location> getAllVillagesUnderLocation(UUID locationId) {
-        Optional<List<Location>> allSubLocations = getAllSubLocations(locationId);
+    public List<Location> getAllVillagesUnderLocation(@NonNull UUID locationId) {
+        Optional<List<Location>> allSubLocations = getAllSubLocations(Objects.requireNonNull(locationId));
         return allSubLocations.map(locations -> locations.stream()
                 .filter(l -> l.getLocationType() == LocationType.VILLAGE)
                 .toList()).orElse(List.of());
@@ -179,10 +181,10 @@ public class LocationService {
         return locationRepository.existsByCode(code);
     }
 
-    public void deleteLocation(UUID id) {
-        Location location = locationRepository.findById(id)
+    public void deleteLocation(@NonNull UUID id) {
+        Location location = locationRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new RuntimeException("Location not found with id: " + id));
-        locationRepository.delete(location);
+        locationRepository.delete(Objects.requireNonNull(location));
     }
 
     public List<Location> searchLocations(String keyword) {

@@ -8,43 +8,45 @@ import com.bus.busmanagement.repository.BusRepository;
 import com.bus.busmanagement.repository.DriverRepository;
 import com.bus.busmanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DriverService {
+
     private final DriverRepository driverRepository;
     private final UserRepository userRepository;
     private final BusRepository busRepository;
 
-    public DriverDTO createDriver(Long userId, String licenseNumber) {
-        User user = userRepository.findById(userId)
+    public DriverDTO createDriver(@NonNull Long userId, String licenseNumber) {
+        User user = userRepository.findById(Objects.requireNonNull(userId))
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         Driver driver = new Driver();
         driver.setUser(user);
         driver.setLicenseNumber(licenseNumber);
-        
+
         Driver saved = driverRepository.save(driver);
         return convertToDTO(saved);
     }
 
-    public DriverDTO assignBus(Long driverId, Long busId) {
-        Driver driver = driverRepository.findById(driverId)
+    public DriverDTO assignBus(@NonNull Long driverId, @NonNull Long busId) {
+        Driver driver = driverRepository.findById(Objects.requireNonNull(driverId))
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
-        Bus bus = busRepository.findById(busId)
+        Bus bus = busRepository.findById(Objects.requireNonNull(busId))
                 .orElseThrow(() -> new RuntimeException("Bus not found"));
-        
+
         driver.setBus(bus);
         Driver updated = driverRepository.save(driver);
         return convertToDTO(updated);
     }
 
-    public DriverDTO getDriverById(Long id) {
-        Driver driver = driverRepository.findById(id)
+    public DriverDTO getDriverById(@NonNull Long id) {
+        Driver driver = driverRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
         return convertToDTO(driver);
     }
@@ -55,8 +57,8 @@ public class DriverService {
         return convertToDTO(driver);
     }
 
-    public DriverDTO getDriverByUserId(Long userId) {
-        Driver driver = driverRepository.findByUserId(userId)
+    public DriverDTO getDriverByUserId(@NonNull Long userId) {
+        Driver driver = driverRepository.findByUserId(Objects.requireNonNull(userId))
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
         return convertToDTO(driver);
     }
@@ -67,16 +69,16 @@ public class DriverService {
                 .collect(Collectors.toList());
     }
 
-    public DriverDTO updateDriver(Long id, String licenseNumber) {
-        Driver driver = driverRepository.findById(id)
+    public DriverDTO updateDriver(@NonNull Long id, String licenseNumber) {
+        Driver driver = driverRepository.findById(Objects.requireNonNull(id))
                 .orElseThrow(() -> new RuntimeException("Driver not found"));
         driver.setLicenseNumber(licenseNumber);
         Driver updated = driverRepository.save(driver);
         return convertToDTO(updated);
     }
 
-    public void deleteDriver(Long id) {
-        driverRepository.deleteById(id);
+    public void deleteDriver(@NonNull Long id) {
+        driverRepository.deleteById(Objects.requireNonNull(id));
     }
 
     private DriverDTO convertToDTO(Driver driver) {

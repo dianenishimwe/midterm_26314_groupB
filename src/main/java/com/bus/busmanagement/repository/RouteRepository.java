@@ -4,6 +4,7 @@ import com.bus.busmanagement.model.Route;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -25,5 +26,7 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
     /**
      * Find all routes with pagination and sorting
      */
-    Page<Route> findAll(Pageable pageable);
+    @Override
+    @NonNull
+    Page<Route> findAll(@NonNull Pageable pageable);
 }
